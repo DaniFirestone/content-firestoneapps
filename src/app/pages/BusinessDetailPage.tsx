@@ -6,15 +6,16 @@ import { Badge } from '../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { PageHeader } from '../components/layout/PageHeader';
 import { BackButton } from '../components/layout/BackButton';
-import { mockBusinesses, type Business } from '../lib/mock-data';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
+import { type Business } from '../lib/mock-data';
+import { useData } from '../contexts/DataContext';
 import { EmptyState } from '../components/ui/empty-state';
 import { ColorSwatch } from '../components/ui/color-swatch';
 import { spacing } from '../lib/design-tokens';
 
 export function BusinessDetailPage() {
   const { id } = useParams();
-  const business: Business | undefined = mockBusinesses.find((b) => b.id === id);
+  const { businesses, appConcepts } = useData();
+  const business: Business | undefined = businesses.find((b) => b.id === id);
 
   if (!business) {
     return (
@@ -30,7 +31,7 @@ export function BusinessDetailPage() {
     );
   }
 
-  const apps = mockFirestoneApps.filter((app) => app.businessId === business.id);
+  const apps = appConcepts.filter((app) => app.businessId === business.id);
 
   return (
     <div className={`${spacing.page.padding} ${spacing.page.container}`}>

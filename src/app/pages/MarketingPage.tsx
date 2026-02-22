@@ -5,8 +5,8 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { spacing } from '../lib/design-tokens';
-import { mockBusinesses, type Business, type AppConcept } from '../lib/mock-data';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
+import { type Business, type AppConcept } from '../lib/mock-data';
+import { useData } from '../contexts/DataContext';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { hexToRgb } from '../lib/color-utils';
@@ -253,6 +253,7 @@ function calculateAppMarketing(app: AppConcept): MarketingStatus {
 }
 
 export function MarketingPage() {
+  const { businesses, appConcepts } = useData();
   const [expandedBusinesses, setExpandedBusinesses] = useState<Set<string>>(new Set());
   const [expandedApps, setExpandedApps] = useState<Set<string>>(new Set());
 
@@ -281,7 +282,7 @@ export function MarketingPage() {
   };
 
   // Calculate marketing status for all items
-  const businessStatuses = mockBusinesses
+  const businessStatuses = businesses
     .filter((b) => b.status === 'active')
     .map((business) => ({
       business,
@@ -295,7 +296,7 @@ export function MarketingPage() {
       return a.status.percentage - b.status.percentage;
     });
 
-  const appStatuses = mockFirestoneApps
+  const appStatuses = appConcepts
     .filter((app) => app.status !== 'archived')
     .map((app) => ({
       app,
@@ -329,7 +330,7 @@ export function MarketingPage() {
     }
 
     if (app.businessId) {
-      const business = mockBusinesses.find((b) => b.id === app.businessId);
+      const business = businesses.find((b) => b.id === app.businessId);
       if (business?.colorPalette) {
         return {
           primary: business.colorPalette.primary.hex,

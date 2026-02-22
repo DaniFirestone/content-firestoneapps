@@ -48,11 +48,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu';
 import { EmptyState } from '../components/ui/empty-state';
-import { mockAppConcepts, AppConcept, AppTask } from '../lib/mock-data';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
+import type { AppConcept, AppTask } from '../lib/mock-data';
+import { useData } from '../contexts/DataContext';
 import { getStageConfig, stages } from '../lib/stage-config';
 import { toast } from 'sonner';
-import { getConceptWithUpdates, changeConceptStage } from '../lib/concept-management';
+import { changeConceptStage } from '../lib/concept-management';
 import { loadCheckpoints, saveConceptCheckpoints } from '../lib/checkpoint-storage';
 import { StageAdvanceDialog } from '../components/app-incubator/StageAdvanceDialog';
 import confetti from 'canvas-confetti';
@@ -97,9 +97,10 @@ interface AssetProcessingStatus {
 export function IncubationWorkspacePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-  // Get the concept with any localStorage updates applied
-  const concept = id ? getConceptWithUpdates(id) : null;
+  const { appConcepts } = useData();
+
+  // Find the concept from Firestore data
+  const concept = id ? appConcepts.find(c => c.id === id) ?? null : null;
   
   // Local state for editing (in real app, this would sync to backend)
   const [formData, setFormData] = useState<Partial<AppConcept>>(concept || {});
@@ -381,13 +382,13 @@ export function IncubationWorkspacePage() {
   };
 
   // Navigate to next/previous stage
-  const handleStageChange = (direction: 'next' | 'prev') => {
+  const handleStageChange = async (direction: 'next' | 'prev') => {
     const currentIndex = stages.findIndex((s) => s.id === concept.status);
     const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-    
+
     if (newIndex >= 0 && newIndex < stages.length) {
       const newStage = stages[newIndex];
-      
+
       // If advancing forward and checkpoints are complete, show dialog
       if (direction === 'next' && validatedCheckpoints.length === stageConfig.validationCheckpoints.length) {
         setTargetStageId(newStage.id);
@@ -395,7 +396,7 @@ export function IncubationWorkspacePage() {
       } else {
         // Otherwise just change stage directly
         if (concept?.id) {
-          changeConceptStage(concept.id, newStage.id as any);
+          await changeConceptStage(concept.id, newStage.id as any);
           toast.success(`Moved to ${newStage.label} stage!`);
           setTimeout(() => window.location.reload(), 500);
         }
@@ -1705,9 +1706,9 @@ export function IncubationWorkspacePage() {
           appName={concept.appNameInternal}
           completedCheckpoints={validatedCheckpoints.length}
           totalCheckpoints={stageConfig.validationCheckpoints.length}
-          onConfirm={() => {
+          onConfirm={async () => {
             if (concept?.id && targetStageId) {
-              changeConceptStage(concept.id, targetStageId as any);
+              await changeConceptStage(concept.id, targetStageId as any);
               
               // Clear checkpoints for new stage
               setValidatedCheckpoints([]);

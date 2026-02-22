@@ -11,8 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
-import { mockBusinesses } from '../lib/mock-data';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
+import { useData } from '../contexts/DataContext';
 import { enhanceColorPalette } from '../lib/color-enhancement';
 import { ColorSwatch } from '../components/ui/color-swatch';
 import {
@@ -63,6 +62,7 @@ interface StyleGuideData {
 export function StyleGuidePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { businesses, appConcepts } = useData();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type') as 'business' | 'app' | null;
   const [showAccessibility, setShowAccessibility] = useState(false);
@@ -70,7 +70,7 @@ export function StyleGuidePage() {
   // Get data based on type
   const getStyleGuideData = (): StyleGuideData | null => {
     if (type === 'business') {
-      const business = mockBusinesses.find((b) => b.id === id);
+      const business = businesses.find((b) => b.id === id);
       if (!business) return null;
 
       // Enhance color palette with accessibility data
@@ -148,11 +148,11 @@ export function StyleGuidePage() {
         }),
       };
     } else if (type === 'app') {
-      const app = mockFirestoneApps.find((a) => a.id === id);
+      const app = appConcepts.find((a) => a.id === id);
       if (!app) return null;
 
       // Get business for fallback values
-      const business = mockBusinesses.find((b) => b.id === app.businessId);
+      const business = businesses.find((b) => b.id === app.businessId);
       
       // Create a temporary color palette for the app
       const appPalette = {

@@ -13,11 +13,12 @@ import { Badge } from '../components/ui/badge';
 import { ScanText } from 'lucide-react';
 import { toast } from 'sonner';
 import { spacing } from '../lib/design-tokens';
-import { mockBusinesses } from '../lib/mock-data';
 import { useSelectedApp } from '../contexts/SelectedAppContext';
+import { useData } from '../contexts/DataContext';
  
 export function QuickCapturePage() {
   const { selectedApp } = useSelectedApp();
+  const { businesses } = useData();
   const [ideaName, setIdeaName] = useState('');
   const [ideaDescription, setIdeaDescription] = useState('');
   const [ideaBusiness, setIdeaBusiness] = useState('');
@@ -92,7 +93,7 @@ export function QuickCapturePage() {
                     <SelectValue placeholder="Link to a business…" />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockBusinesses.map((b) => (
+                    {businesses.map((b) => (
                       <SelectItem key={b.id} value={b.id}>
                         {b.name}
                       </SelectItem>

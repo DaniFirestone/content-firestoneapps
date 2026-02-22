@@ -30,9 +30,11 @@ import {
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { mockUser, mockTasks } from '../../lib/mock-data';
-import { mockFirestoneApps } from '../../lib/mock-apps-new';
 import { useSelectedApp } from '../../contexts/SelectedAppContext';
+import { useData } from '../../contexts/DataContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../lib/firebase';
 import { toast } from 'sonner';
 
 const navigation = [
@@ -54,13 +56,18 @@ const navigation = [
 export function SidebarNav() {
   const location = useLocation();
   const { selectedApp, setSelectedApp, canUndo, undoSelection, previousApp } = useSelectedApp();
-  
+  const { appConcepts, tasks } = useData();
+  const { user } = useAuth();
+
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+  const displayEmail = user?.email || '';
+
   // Calculate badges
-  const activeApps = mockFirestoneApps.filter(app => 
+  const activeApps = appConcepts.filter(app =>
     ['idea', 'brainstorming', 'prototyping'].includes(app.status)
   ).length;
   
-  const pendingTasks = mockTasks.filter(task => 
+  const pendingTasks = tasks.filter(task =>
     task.status === 'todo' || task.status === 'in-progress'
   ).length;
   
@@ -153,13 +160,13 @@ export function SidebarNav() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton className="w-full transition-colors">
                   <UserCircle className="h-4 w-4" />
-                  <span>{mockUser.name}</span>
+                  <span>{displayName}</span>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{mockUser.name}</p>
-                  <p className="text-xs text-muted-foreground">{mockUser.email}</p>
+                  <p className="text-sm font-medium">{displayName}</p>
+                  <p className="text-xs text-muted-foreground">{displayEmail}</p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -175,7 +182,12 @@ export function SidebarNav() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await signOut(auth);
+                    toast.success('Signed out');
+                  }}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
                 </DropdownMenuItem>

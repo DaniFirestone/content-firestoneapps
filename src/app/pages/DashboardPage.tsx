@@ -19,36 +19,36 @@ import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Input } from '../components/ui/input';
 import { spacing } from '../lib/design-tokens';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
-import { mockTasks } from '../lib/mock-data';
 import { useSelectedApp } from '../contexts/SelectedAppContext';
+import { useData } from '../contexts/DataContext';
 import { ICONS } from '../lib/icon-registry';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export function DashboardPage() {
   const { selectedApp, setSelectedApp } = useSelectedApp();
+  const { appConcepts, tasks } = useData();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   // Calculate stats
-  const activeApps = mockFirestoneApps.filter(app => 
+  const activeApps = appConcepts.filter(app =>
     ['idea', 'brainstorming', 'prototyping'].includes(app.status)
   );
-  const pendingTasks = mockTasks.filter(task => 
+  const pendingTasks = tasks.filter(task =>
     task.status === 'todo' || task.status === 'in-progress'
   );
   const healthScore = 87;
 
   // Search filtering
   const filteredApps = searchQuery.trim()
-    ? mockFirestoneApps.filter(app =>
+    ? appConcepts.filter(app =>
         app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         app.description?.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
-  const handleAppClick = (app: typeof mockFirestoneApps[0], isWorkspace: boolean) => {
+  const handleAppClick = (app: typeof appConcepts[0], isWorkspace: boolean) => {
     if (isWorkspace) {
       setSelectedApp(app);
       navigate(`/workspace/${app.id}`);
@@ -282,7 +282,7 @@ export function DashboardPage() {
               <div className="mt-4 pt-4 border-t">
                 <p className="text-xs text-muted-foreground mb-2">Recent apps</p>
                 <div className="flex flex-wrap gap-2">
-                  {mockFirestoneApps.slice(0, 5).map((app) => (
+                  {appConcepts.slice(0, 5).map((app) => (
                     <button
                       key={app.id}
                       onClick={() => setSearchQuery(app.name)}

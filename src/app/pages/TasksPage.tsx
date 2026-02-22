@@ -7,9 +7,9 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { EmptyState } from '../components/ui/empty-state';
-import { mockTasks } from '../lib/mock-data';
 import { spacing } from '../lib/design-tokens';
 import { useSelectedApp } from '../contexts/SelectedAppContext';
+import { useData } from '../contexts/DataContext';
 import {
   Select,
   SelectContent,
@@ -20,13 +20,14 @@ import {
 
 export function TasksPage() {
   const { selectedApp } = useSelectedApp();
+  const { tasks } = useData();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
   // Filter tasks by selected app if one is active
   const appFilteredTasks = selectedApp
-    ? mockTasks.filter(task => task.assignedToAppId === selectedApp.id)
-    : mockTasks;
+    ? tasks.filter(task => task.assignedToAppId === selectedApp.id)
+    : tasks;
 
   const filteredTasks = appFilteredTasks.filter((task) => {
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
@@ -47,7 +48,7 @@ export function TasksPage() {
     return colors[priority as keyof typeof colors];
   };
 
-  const TaskCard = ({ task }: { task: typeof mockTasks[0] }) => (
+  const TaskCard = ({ task }: { task: typeof tasks[0] }) => (
     <Card>
       <CardContent className="flex items-start gap-3 py-4">
         <div className={`mt-0.5 h-5 w-5 rounded border ${task.status === 'done' ? 'bg-green-500 border-green-500' : 'border-muted-foreground'} flex items-center justify-center`}>
@@ -128,7 +129,7 @@ export function TasksPage() {
         </CardContent>
       </Card>
 
-      {mockTasks.length === 0 ? (
+      {tasks.length === 0 ? (
         <EmptyState
           variant="tasks"
           actionLabel="Create Task"

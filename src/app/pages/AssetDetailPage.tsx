@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { EmptyState } from '../components/ui/empty-state';
-import { mockAssets } from '../lib/mock-data';
 import { spacing } from '../lib/design-tokens';
+import { useData } from '../contexts/DataContext';
 
 export function AssetDetailPage() {
   const { id } = useParams();
-  const asset = mockAssets.find((a) => a.id === id);
+  const { assets } = useData();
+  const asset = assets.find((a) => a.id === id);
 
   if (!asset) {
     return (

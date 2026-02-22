@@ -48,10 +48,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
-import { mockBusinesses } from '../../lib/mock-data';
-import { mockFirestoneApps } from '../../lib/mock-apps-new';
 import type { AppConcept } from '../../lib/mock-data';
 import { toast } from 'sonner';
+import { useData } from '../../contexts/DataContext';
 import { AppIcon } from '../common/AppIcon';
 import { useSelectedApp } from '../../contexts/SelectedAppContext';
 
@@ -88,13 +87,14 @@ export function AppHubClient() {
 
   // Use selected app context
   const { selectedApp, setSelectedApp } = useSelectedApp();
+  const { appConcepts, businesses, loading, error } = useData();
 
-  // Mock data - in real app these would be from hooks
-  const hubs = mockBusinesses;
-  const allApps = mockFirestoneApps;
-  const hubsLoading = false;
-  const appsLoading = false;
-  const hubsError = null;
+  // Data from context
+  const hubs = businesses;
+  const allApps = appConcepts;
+  const hubsLoading = loading;
+  const appsLoading = loading;
+  const hubsError = error;
 
   const displayedHubs = useMemo(() => {
     return hubs.filter((hub) => {

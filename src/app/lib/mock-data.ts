@@ -119,7 +119,11 @@ export interface Business {
   
   // Source
   styleguideSource?: StyleguideSource;
-  
+
+  // Top-level colors from real Firestore (businessHubs)
+  primaryColor?: string;
+  accentColor?: string;
+
   // Metadata
   createdAt: string;
   updatedAt: string;
@@ -171,29 +175,29 @@ export interface AppConcept {
   chromeProfile?: string;
   slug: string;
   status: 'idea' | 'brainstorming' | 'prototyping' | 'final' | 'published' | 'archived';
-  
+
   // DNA Integration
   usesBusinessDNA: boolean;
   businessDNAId?: string;
-  
+
   // Core Details
   problemStatement?: string;
   solutionStatement?: string;
   description: string;
   longDescription?: string;
   appSpecificUSP?: string;
-  
+
   // Visual Identity (can override DNA)
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string;
   backgroundColor?: string;
-  
+
   // Tasks & Features
   tasks: AppTask[];
   enabledFeatures: AppFeature[];
   links: AppLink[];
-  
+
   // Firebase/Deployment
   hasStaging: boolean;
   stagingUrl?: string;
@@ -202,12 +206,12 @@ export interface AppConcept {
   firebaseConsoleLink?: string;
   googleCloudProjectId?: string;
   googleCloudProjectName?: string;
-  
+
   // Session & Focus
   isFocused: boolean;
   lastSessionContext?: string;
   sessionState?: SessionState;
-  
+
   // Legacy/Additional Fields
   phase: string;
   progress: number;
@@ -220,12 +224,12 @@ export interface AppConcept {
   mainPrompt?: string;
   category?: string;
   techStack?: string[];
-  
+
   // Stage-based workflow fields
   validationCheckpoints?: string[];
   keyQuestions?: { question: string; answer?: string }[];
   nextAction?: string;
-  
+
   // Additional validation fields
   targetUser?: string;
   solutionDescription?: string;
@@ -239,10 +243,32 @@ export interface AppConcept {
   uxPolishNotes?: string;
   marketingPlan?: string;
   launchStrategy?: string;
-  
+
   // Assets
   prototypeAssetIds?: string[];
   processIds?: string[];
+
+  // Real Firestore fields (from firestoneApps collection)
+  conceptDescription?: string;
+  codeSnippet?: string;
+  icon?: string;
+  faviconUrl?: string;
+  appLinkPublished?: string;
+  ownerId?: string;
+  ownerName?: string;
+  primaryColorOverride?: string;
+  accentColorOverride?: string;
+  useAppSpecificColors?: boolean;
+  stagingProjectId?: string;
+  finalSummary?: string;
+  passcode?: string;
+  supportContact?: string;
+  vibeDocsProjectUrl?: string;
+  developmentNotes?: string;
+
+  // Computed aliases used by DashboardPage / Header
+  name?: string;
+  color?: string;
 }
 
 export interface PrototypeAsset {
@@ -276,12 +302,17 @@ export interface Asset {
   size: string;
   url: string;
   thumbnail?: string;
+  thumbnailUrl?: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
   aiGenerated?: boolean;
   assignedToAppId?: string;
   uploadedAt?: string;
+  description?: string;
+  businessId?: string;
+  appId?: string;
+  status?: string;
 }
 
 export interface Task {
@@ -295,6 +326,7 @@ export interface Task {
   relatedApp?: string;
   createdAt: string;
   updatedAt: string;
+  assignedToAppId?: string;
 }
 
 export const mockUser: User = {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { ICONS } from '../lib/icon-registry';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -30,11 +30,11 @@ import {
 } from '../components/ui/tooltip';
 import { toast } from 'sonner';
 import { spacing } from '../lib/design-tokens';
-import { mockAppConcepts, mockBusinesses, AppConcept } from '../lib/mock-data';
+import type { AppConcept } from '../lib/mock-data';
+import { useData } from '../contexts/DataContext';
 import { getStageConfig } from '../lib/stage-config';
-import { 
-  getAllConceptsWithUpdates, 
-  changeConceptStage, 
+import {
+  changeConceptStage,
   duplicateConcept,
   archiveConcept,
   deleteConcept,
@@ -61,9 +61,10 @@ export function AppIncubatorPage() {
   const [conceptForCheckpointAction, setConceptForCheckpointAction] = useState<AppConcept | null>(null);
   const [selectedCheckpoint, setSelectedCheckpoint] = useState<any>(null);
   const { selectedApp, setSelectedApp } = useSelectedApp();
+  const { appConcepts, businesses } = useData();
 
-  // Get all active concepts with updates applied
-  const allConcepts = getAllConceptsWithUpdates().filter(
+  // Filter to active concepts from Firestore data
+  const allConcepts = appConcepts.filter(
     concept => concept.status !== 'published' && concept.status !== 'archived'
   );
 
@@ -77,7 +78,7 @@ export function AppIncubatorPage() {
 
   const getBusinessName = (businessId?: string) => {
     if (!businessId) return null;
-    return mockBusinesses.find((b) => b.id === businessId)?.companyName ?? null;
+    return businesses.find((b) => b.id === businessId)?.companyName ?? null;
   };
 
   // Helper to get app colors (from app or business)
@@ -94,7 +95,7 @@ export function AppIncubatorPage() {
 
     // Otherwise get from business
     if (concept.businessId) {
-      const business = mockBusinesses.find((b) => b.id === concept.businessId);
+      const business = businesses.find((b) => b.id === concept.businessId);
       if (business?.colorPalette) {
         return {
           primary: business.colorPalette.primary.hex,
@@ -289,8 +290,8 @@ export function AppIncubatorPage() {
                             Style Guide
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => {
-                          const duplicated = duplicateConcept(concept);
+                        <DropdownMenuItem onClick={async () => {
+                          const duplicated = await duplicateConcept(concept);
                           toast.success(`Created copy: ${duplicated.appNameInternal}`);
                           setTimeout(() => window.location.reload(), 100);
                         }}>
@@ -507,12 +508,12 @@ export function AppIncubatorPage() {
           appName={conceptToAdvance.appNameInternal}
           completedCheckpoints={conceptCheckpoints[conceptToAdvance.id]?.length || 0}
           totalCheckpoints={getStageConfig(conceptToAdvance.status)!.validationCheckpoints.length}
-          onConfirm={() => {
+          onConfirm={async () => {
             const nextStageId = stageOrder[stageOrder.findIndex(s => s === conceptToAdvance.status) + 1];
             const nextStageConfig = getStageConfig(nextStageId);
-            
+
             // Actually update the stage
-            changeConceptStage(conceptToAdvance.id, nextStageId as any);
+            await changeConceptStage(conceptToAdvance.id, nextStageId as any);
             
             // Clear checkpoints for this concept as we're moving to a new stage
             setConceptCheckpoints(prev => ({
@@ -539,8 +540,8 @@ export function AppIncubatorPage() {
           open={archiveDialogOpen}
           onOpenChange={setArchiveDialogOpen}
           concept={conceptToArchive}
-          onConfirm={() => {
-            archiveConcept(conceptToArchive.id);
+          onConfirm={async () => {
+            await archiveConcept(conceptToArchive.id);
             toast.success(`Concept "${conceptToArchive.appNameInternal}" archived.`);
             setArchiveDialogOpen(false);
             setConceptToArchive(null);
@@ -554,8 +555,8 @@ export function AppIncubatorPage() {
           open={deleteDialogOpen}
           onOpenChange={setDeleteDialogOpen}
           concept={conceptToDelete}
-          onConfirm={() => {
-            deleteConcept(conceptToDelete.id);
+          onConfirm={async () => {
+            await deleteConcept(conceptToDelete.id);
             toast.success(`Concept "${conceptToDelete.appNameInternal}" deleted.`);
             setDeleteDialogOpen(false);
             setConceptToDelete(null);

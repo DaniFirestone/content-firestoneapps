@@ -15,13 +15,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ColorPicker } from '../components/ui/color-picker';
-import { mockBusinesses } from '../lib/mock-data';
 import { spacing } from '../lib/design-tokens';
+import { useData } from '../contexts/DataContext';
 import { EmptyState } from '../components/ui/empty-state';
 
 export function BusinessEditPage() {
   const { id } = useParams<{ id: string }>();
-  const business = mockBusinesses.find((b) => b.id === id);
+  const { businesses } = useData();
+  const business = businesses.find((b) => b.id === id);
 
   const [formData, setFormData] = useState({
     companyName: business?.companyName || '',

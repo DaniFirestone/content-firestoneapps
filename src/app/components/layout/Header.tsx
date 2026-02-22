@@ -4,7 +4,7 @@ import { useSelectedApp } from '../../contexts/SelectedAppContext';
 import { Link } from 'react-router';
 import { Button } from '../ui/button';
 import { ExternalLink, ChevronDown, Check } from 'lucide-react';
-import { mockFirestoneApps } from '../../lib/mock-apps-new';
+import { useData } from '../../contexts/DataContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,9 +17,10 @@ import { toast } from 'sonner';
 
 export function Header() {
   const { selectedApp, setSelectedApp } = useSelectedApp();
+  const { appConcepts } = useData();
 
   // Get all production/active apps
-  const allApps = mockFirestoneApps.filter(app => 
+  const allApps = appConcepts.filter(app =>
     app.status === 'production' || app.status === 'prototyping'
   );
 

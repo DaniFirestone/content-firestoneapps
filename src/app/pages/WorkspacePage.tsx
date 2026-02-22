@@ -5,15 +5,16 @@ import { BackButton } from '../components/layout/BackButton';
 import { spacing } from '../lib/design-tokens';
 import { WorkspaceClient } from '../components/workspace/WorkspaceClient';
 import { useSelectedApp } from '../contexts/SelectedAppContext';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
+import { useData } from '../contexts/DataContext';
 
 export function WorkspacePage() {
   const { id } = useParams();
   const { selectedApp } = useSelectedApp();
-  
+  const { appConcepts } = useData();
+
   // Determine which app to show: URL param takes priority, then selected app
-  const appToShow = id 
-    ? mockFirestoneApps.find((a) => a.id === id)
+  const appToShow = id
+    ? appConcepts.find((a) => a.id === id)
     : selectedApp;
   
   return (

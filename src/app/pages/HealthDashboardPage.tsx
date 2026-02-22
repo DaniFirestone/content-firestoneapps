@@ -6,8 +6,8 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { spacing } from '../lib/design-tokens';
-import { mockBusinesses, type Business, type AppConcept } from '../lib/mock-data';
-import { mockFirestoneApps } from '../lib/mock-apps-new';
+import { type Business, type AppConcept } from '../lib/mock-data';
+import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -58,6 +58,7 @@ const fieldLabels: Record<string, string> = {
 };
 
 export function HealthDashboardPage() {
+  const { businesses, appConcepts } = useData();
   const [activeTab, setActiveTab] = useState('marketing');
   
   // Tech Dashboard State
@@ -73,7 +74,7 @@ export function HealthDashboardPage() {
   const [localEdits, setLocalEdits] = useState<Record<string, Partial<AppConcept>>>({});
 
   // Calculate marketing health
-  const businessMarketingHealth = mockBusinesses.map((business) => {
+  const businessMarketingHealth = businesses.map((business) => {
     const missing: string[] = [];
     [...marketingFields.business.critical, ...marketingFields.business.important].forEach((field) => {
       const value = business[field];
@@ -98,7 +99,7 @@ export function HealthDashboardPage() {
     return { business, missing, isCriticalMissing };
   });
 
-  const appMarketingHealth = mockFirestoneApps.map((app) => {
+  const appMarketingHealth = appConcepts.map((app) => {
     const fields = app.status === 'published' ? marketingFields.app.published : marketingFields.app.other;
     const missing: string[] = [];
 
@@ -113,7 +114,7 @@ export function HealthDashboardPage() {
   });
 
   // Calculate tech health (for apps with staging)
-  const appTechHealth = mockFirestoneApps
+  const appTechHealth = appConcepts
     .filter((app) => app.hasStaging || app.status === 'published')
     .map((app) => {
       const missing: string[] = [];
@@ -142,7 +143,7 @@ export function HealthDashboardPage() {
   // Tech Dashboard - calculate data health for all apps
   const techCriticalFields: (keyof AppConcept)[] = ['googleCloudProjectId', 'appNameInternal', 'status'];
   
-  const techDataHealth = mockFirestoneApps.map((app) => {
+  const techDataHealth = appConcepts.map((app) => {
     const currentApp = { ...app, ...(localEdits[app.id] || {}) };
     const missingFields: string[] = [];
     
@@ -166,7 +167,7 @@ export function HealthDashboardPage() {
 
   // Get unique Chrome Profiles for filter
   const chromeProfiles = Array.from(
-    new Set(mockFirestoneApps.map((a) => a.chromeProfile).filter(Boolean))
+    new Set(appConcepts.map((a) => a.chromeProfile).filter(Boolean))
   );
 
   // Filter and sort tech apps
@@ -285,8 +286,8 @@ export function HealthDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockBusinesses.length + mockFirestoneApps.length - priorityBusinesses.length - priorityApps.length}/
-              {mockBusinesses.length + mockFirestoneApps.length}
+              {businesses.length + appConcepts.length - priorityBusinesses.length - priorityApps.length}/
+              {businesses.length + appConcepts.length}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">Ready for marketing</p>
           </CardContent>
@@ -311,13 +312,13 @@ export function HealthDashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">
               {Math.round(
-                ((mockBusinesses.length +
-                  mockFirestoneApps.length +
+                ((businesses.length +
+                  appConcepts.length +
                   appTechHealth.length -
                   priorityBusinesses.length -
                   priorityApps.length -
                   priorityTech.length) /
-                  (mockBusinesses.length + mockFirestoneApps.length + appTechHealth.length)) *
+                  (businesses.length + appConcepts.length + appTechHealth.length)) *
                   100
               )}
               %
@@ -834,7 +835,7 @@ export function HealthDashboardPage() {
             <div className="border-t bg-muted/20 px-4 py-3">
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>
-                  Showing {filteredTechApps.length} of {mockFirestoneApps.length} apps
+                  Showing {filteredTechApps.length} of {appConcepts.length} apps
                 </span>
                 <span>
                   {selectedAppIds.length > 0 && `${selectedAppIds.length} selected`}
@@ -856,16 +857,16 @@ export function HealthDashboardPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Total Businesses</span>
-                  <Badge variant="outline">{mockBusinesses.length}</Badge>
+                  <Badge variant="outline">{businesses.length}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Total Apps</span>
-                  <Badge variant="outline">{mockFirestoneApps.length}</Badge>
+                  <Badge variant="outline">{appConcepts.length}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Published Apps</span>
                   <Badge variant="outline">
-                    {mockFirestoneApps.filter((a) => a.status === 'published').length}
+                    {appConcepts.filter((a) => a.status === 'published').length}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between">

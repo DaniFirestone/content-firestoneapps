@@ -47,9 +47,8 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Skeleton } from '../ui/skeleton';
 import { Alert, AlertDescription } from '../ui/alert';
-import { mockFirestoneApps } from '../../lib/mock-apps-new';
-import { mockBusinesses } from '../../lib/mock-data';
 import { toast } from 'sonner';
+import { useData } from '../../contexts/DataContext';
 import { AppIcon } from '../common/AppIcon';
 import { useSelectedApp } from '../../contexts/SelectedAppContext';
 
@@ -64,6 +63,7 @@ const statusIcons = {
 export function WorkspaceClient() {
   const { id } = useParams();
   const { selectedApp } = useSelectedApp();
+  const { appConcepts, businesses } = useData();
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading] = useState(false);
   const [taskFilter, setTaskFilter] = useState<'all' | 'todo' | 'in_progress' | 'done' | 'high_priority'>('all');
@@ -73,18 +73,18 @@ export function WorkspaceClient() {
   // Get the app - URL param takes priority, then selected app, then fallback
   const app = useMemo(() => {
     if (id) {
-      return mockFirestoneApps.find((a) => a.id === id);
+      return appConcepts.find((a) => a.id === id);
     }
     if (selectedApp) {
       return selectedApp;
     }
     return null;
-  }, [id, selectedApp]);
+  }, [id, selectedApp, appConcepts]);
 
   // Get associated business
   const business = useMemo(() => {
-    return app?.businessId ? mockBusinesses.find((b) => b.id === app.businessId) : null;
-  }, [app]);
+    return app?.businessId ? businesses.find((b) => b.id === app.businessId) : null;
+  }, [app, businesses]);
 
   if (isLoading) {
     return (

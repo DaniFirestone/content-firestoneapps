@@ -2,8 +2,8 @@ import { Link } from 'react-router';
 import { Lightbulb, ArrowRight, Pin } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { mockFirestoneApps } from '../../lib/mock-apps-new';
 import { useSelectedApp } from '../../contexts/SelectedAppContext';
+import { useData } from '../../contexts/DataContext';
 import { toast } from 'sonner';
 
 interface AppSelectorCardProps {
@@ -16,8 +16,9 @@ export function AppSelectorCard({
   showTopApps = true 
 }: AppSelectorCardProps) {
   const { setSelectedApp } = useSelectedApp();
+  const { appConcepts } = useData();
 
-  const activeApps = mockFirestoneApps
+  const activeApps = appConcepts
     .filter(app => ['idea', 'brainstorming', 'prototyping'].includes(app.status))
     .slice(0, 3);
 

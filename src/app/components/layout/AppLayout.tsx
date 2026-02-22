@@ -5,8 +5,24 @@ import { SidebarNav } from './SidebarNav';
 import { MobileFloatingActions } from './MobileFloatingActions';
 import { SkipLink } from './SkipLink';
 import { ErrorBoundary } from '../ui/error-boundary';
+import { useAuth } from '../../contexts/AuthContext';
+import { SignInPage } from '../../pages/SignInPage';
 
 export function AppLayout() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <SignInPage />;
+  }
+
   return (
     <ErrorBoundary>
       <SidebarProvider>

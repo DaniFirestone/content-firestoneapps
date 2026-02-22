@@ -9,19 +9,20 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { EmptyState } from '../components/ui/empty-state';
-import { mockAssets } from '../lib/mock-data';
 import { spacing } from '../lib/design-tokens';
 import { useSelectedApp } from '../contexts/SelectedAppContext';
+import { useData } from '../contexts/DataContext';
  
 export function AssetsPage() {
   const { selectedApp } = useSelectedApp();
+  const { assets } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Filter assets by selected app if one is active
   const filteredAssets = selectedApp 
-    ? mockAssets.filter(asset => asset.assignedToAppId === selectedApp.id)
-    : mockAssets;
+    ? assets.filter(asset => asset.assignedToAppId === selectedApp.id)
+    : assets;
 
   const inboxAssets = filteredAssets.filter((a) => a.status === 'inbox');
   const processedAssets = filteredAssets.filter((a) => a.status === 'processed');
