@@ -66,6 +66,8 @@ import {
   Clock,
   Eye,
   EyeOff,
+  Fingerprint,
+  Building2,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -83,6 +85,7 @@ export const ICON_NAV = {
   APP_INCUBATOR: Lightbulb, // Incubating ideas/concepts
   WORKSPACE: Wrench, // Tools for building
   APP_HUB: Layers,
+  BUSINESS_DNA: Fingerprint,
   ASSETS: FileText,
   HEALTH: Activity,
   EXPORT: Download,

@@ -5,6 +5,9 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  deleteDoc,
+  query,
+  where,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -100,8 +103,10 @@ function mapTaskStatus(raw: string): Task['status'] {
 // READ — App Concepts  (firestoneApps)
 // ---------------------------------------------------------------------------
 
-export async function getAppConcepts(): Promise<AppConcept[]> {
-  const snapshot = await getDocs(collection(db, 'firestoneApps'));
+export async function getAppConcepts(userId?: string): Promise<AppConcept[]> {
+  const ref = collection(db, 'firestoneApps');
+  const q = userId ? query(ref, where('userId', '==', userId)) : ref;
+  const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => normalizeAppConcept(d.id, d.data()));
 }
 
@@ -248,16 +253,20 @@ function normalizeAppConcept(
 export async function saveAppConcept(
   id: string,
   data: Partial<AppConcept>,
+  userId?: string,
 ): Promise<void> {
   const payload = reverseTransformApp(data);
+  if (userId) payload.userId = userId;
   await setDoc(doc(db, 'firestoneApps', id), payload, { merge: true });
 }
 
 export async function updateAppConcept(
   id: string,
   data: Partial<AppConcept>,
+  userId?: string,
 ): Promise<void> {
   const payload = reverseTransformApp(data);
+  if (userId) payload.userId = userId;
   await updateDoc(doc(db, 'firestoneApps', id), payload);
 }
 
@@ -287,12 +296,40 @@ function reverseTransformApp(
   return out;
 }
 
+export async function deleteAppConcept(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'firestoneApps', id));
+}
+
+// ---------------------------------------------------------------------------
+// WRITE — Businesses  (businessHubs)
+// ---------------------------------------------------------------------------
+
+export async function saveBusiness(
+  id: string,
+  data: Partial<Business>,
+  userId?: string,
+): Promise<void> {
+  const payload: Record<string, unknown> = { ...data };
+  if (userId) payload.userId = userId;
+  payload.updatedAt = new Date().toISOString();
+  if (!payload.createdAt) {
+    payload.createdAt = new Date().toISOString();
+  }
+  await setDoc(doc(db, 'businessHubs', id), payload, { merge: true });
+}
+
+export async function deleteBusiness(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'businessHubs', id));
+}
+
 // ---------------------------------------------------------------------------
 // READ — Businesses  (businessHubs)
 // ---------------------------------------------------------------------------
 
-export async function getBusinesses(): Promise<Business[]> {
-  const snapshot = await getDocs(collection(db, 'businessHubs'));
+export async function getBusinesses(userId?: string): Promise<Business[]> {
+  const ref = collection(db, 'businessHubs');
+  const q = userId ? query(ref, where('userId', '==', userId)) : ref;
+  const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => normalizeBusiness(d.id, d.data()));
 }
 
@@ -366,8 +403,10 @@ function normalizeBusiness(
 // READ — Tasks  (extracted from firestoneApps embedded tasks[])
 // ---------------------------------------------------------------------------
 
-export async function getTasks(): Promise<Task[]> {
-  const snapshot = await getDocs(collection(db, 'firestoneApps'));
+export async function getTasks(userId?: string): Promise<Task[]> {
+  const ref = collection(db, 'firestoneApps');
+  const q = userId ? query(ref, where('userId', '==', userId)) : ref;
+  const snapshot = await getDocs(q);
   const allTasks: Task[] = [];
 
   for (const d of snapshot.docs) {
@@ -403,8 +442,10 @@ export async function getTasksByApp(appId: string): Promise<Task[]> {
 // READ — Assets  (prototypeAssets)
 // ---------------------------------------------------------------------------
 
-export async function getAssets(): Promise<Asset[]> {
-  const snapshot = await getDocs(collection(db, 'prototypeAssets'));
+export async function getAssets(userId?: string): Promise<Asset[]> {
+  const ref = collection(db, 'prototypeAssets');
+  const q = userId ? query(ref, where('userId', '==', userId)) : ref;
+  const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => normalizeAsset(d.id, d.data()));
 }
 
@@ -441,11 +482,38 @@ function normalizeAsset(id: string, raw: Record<string, unknown>): Asset {
 }
 
 // ---------------------------------------------------------------------------
+// WRITE — Assets  (prototypeAssets)
+// ---------------------------------------------------------------------------
+
+export async function saveAsset(
+  id: string,
+  data: Partial<Asset>,
+  userId?: string,
+): Promise<void> {
+  const payload: Record<string, unknown> = { ...data };
+  if (userId) payload.userId = userId;
+  // Map back to Firestore field names
+  if (data.name) payload.title = data.name;
+  if (data.url) payload.assetUrl = data.url;
+  if (data.type) payload.assetType = data.type;
+  if (data.assignedToAppId) payload.appId = data.assignedToAppId;
+  payload.updatedAt = new Date().toISOString();
+  if (!payload.createdAt) {
+    payload.createdAt = new Date().toISOString();
+  }
+  await setDoc(doc(db, 'prototypeAssets', id), payload, { merge: true });
+}
+
+export async function deleteAsset(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'prototypeAssets', id));
+}
+
+// ---------------------------------------------------------------------------
 // Claim Ownership  (firestoneApps + businessHubs)
 // ---------------------------------------------------------------------------
 
 export async function claimOwnership(uid: string): Promise<number> {
-  const collections = ['firestoneApps', 'businessHubs'];
+  const collections = ['firestoneApps', 'businessHubs', 'prototypeAssets'];
   let updated = 0;
 
   for (const col of collections) {

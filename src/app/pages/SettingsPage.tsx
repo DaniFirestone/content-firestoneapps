@@ -133,12 +133,13 @@ export function SettingsPage() {
               <div className="text-sm text-muted-foreground">{seedStatus}</div>
             )}
             <Button
-              disabled={seeding}
+              disabled={seeding || !user}
               onClick={async () => {
+                if (!user) return;
                 setSeeding(true);
                 setSeedStatus('Seeding Firestore...');
                 try {
-                  const counts = await seedFirestore();
+                  const counts = await seedFirestore(user.uid);
                   setSeedStatus(
                     `Done — seeded ${counts.appConcepts} app concepts, ${counts.businesses} businesses, ${counts.tasks} tasks, ${counts.assets} assets.`,
                   );

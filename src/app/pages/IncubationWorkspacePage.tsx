@@ -287,7 +287,6 @@ export function IncubationWorkspacePage() {
       setSaveStatus('saving');
       setTimeout(() => {
         setSaveStatus('saved');
-        console.log('Field saved:', fieldName, value);
       }, 500);
     }, 1000);
   };
@@ -1688,7 +1687,6 @@ export function IncubationWorkspacePage() {
         onOpenChange={setShowArchiveDialog}
         appName={concept.appNameInternal}
         onArchive={(data) => {
-          console.log('Archiving concept with data:', data);
           toast.success('Concept archived with learnings captured');
           setShowArchiveDialog(false);
           // In real app: update backend and redirect

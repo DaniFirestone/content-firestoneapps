@@ -5,6 +5,7 @@ interface SelectedApp {
   name: string;
   icon?: string;
   color?: string;
+  businessId?: string;
 }
 
 interface SelectedAppContextType {

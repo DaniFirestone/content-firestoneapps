@@ -232,7 +232,6 @@ export function HealthDashboardPage() {
       },
     }));
     // In real app, this would trigger auto-save to backend
-    console.log(`Auto-saving ${field} for app ${appId}:`, value);
   };
 
   const handleSort = (column: string) => {
@@ -636,7 +635,6 @@ export function HealthDashboardPage() {
                         Cancel
                       </Button>
                       <Button onClick={() => {
-                        console.log('Creating new app...');
                         setIsQuickAddOpen(false);
                       }}>
                         Create App
@@ -801,7 +799,6 @@ export function HealthDashboardPage() {
                             <Input
                               value={app.chromeProfile || ''}
                               onChange={(e) => handleFieldEdit(app.id, 'chromeProfile', e.target.value)}
-                              onBlur={() => console.log('Auto-save triggered')}
                               placeholder="profile@gmail.com"
                               className="h-8 text-xs"
                             />
@@ -810,7 +807,6 @@ export function HealthDashboardPage() {
                             <Input
                               value={app.googleCloudProjectId || ''}
                               onChange={(e) => handleFieldEdit(app.id, 'googleCloudProjectId', e.target.value)}
-                              onBlur={() => console.log('Auto-save triggered')}
                               placeholder="project-id-123"
                               className="h-8 font-mono text-xs"
                             />

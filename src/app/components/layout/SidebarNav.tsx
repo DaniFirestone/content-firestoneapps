@@ -1,7 +1,4 @@
 import {
-  X,
-  Undo2,
-  Pin,
   Settings,
   HelpCircle,
   LogOut,
@@ -28,8 +25,6 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useSelectedApp } from '../../contexts/SelectedAppContext';
 import { useData } from '../../contexts/DataContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -42,7 +37,7 @@ const navigation = [
   { label: 'Dashboard', href: '/', icon: ICONS.nav.HOME, group: 'primary' },
   { label: 'Quick Capture', href: '/capture', icon: ICONS.nav.SPARKLES, group: 'primary' },
   { label: 'App Incubator', href: '/app-incubator', icon: ICONS.nav.APP_INCUBATOR, group: 'primary', badge: 'apps' },
-  { label: 'App Workspaces', href: '/app-hub', icon: ICONS.nav.APP_HUB, group: 'primary' },
+  { label: 'Business DNA', href: '/app-hub', icon: ICONS.nav.BUSINESS_DNA, group: 'primary' },
   
   // Resources & Monitoring
   { label: 'Assets', href: '/assets', icon: ICONS.nav.ASSETS, group: 'secondary' },

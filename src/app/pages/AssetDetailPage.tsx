@@ -98,16 +98,8 @@ export function AssetDetailPage() {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Created</div>
-                <div className="mt-1 font-medium">{asset.createdAt.toLocaleDateString()}</div>
+                <div className="mt-1 font-medium">{new Date(asset.createdAt).toLocaleDateString()}</div>
               </div>
-              {asset.metadata.width && asset.metadata.height && (
-                <div>
-                  <div className="text-sm text-muted-foreground">Dimensions</div>
-                  <div className="mt-1 font-medium">
-                    {asset.metadata.width} × {asset.metadata.height}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
